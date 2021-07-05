@@ -1,5 +1,6 @@
 package com.binarystudio.academy.springsecurity.exceptions;
 
+import com.binarystudio.academy.springsecurity.security.auth.AuthoritiesException;
 import com.binarystudio.academy.springsecurity.security.jwt.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,10 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
 	public ApiError handleAll(Exception exception, HttpServletRequest request, HttpServletResponse response) {
 		log.error("Unhandled error", exception);
 		return setResponseStatusAndReturnError(exception, "internal-error", HttpStatus.INTERNAL_SERVER_ERROR, request, response);
+	}
+
+	@ExceptionHandler(AuthoritiesException.class)
+	public ApiError handleAuthoritiesException(JwtException exception, HttpServletRequest request, HttpServletResponse response) {
+		return setResponseStatusAndReturnError(exception, exception.getCode(), HttpStatus.FORBIDDEN, request, response);
 	}
 }

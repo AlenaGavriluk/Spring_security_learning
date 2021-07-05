@@ -8,6 +8,8 @@ jwt:
   secs_to_expire_access: 1800
   # 30days
   secs_to_expire_refresh: 2592000
+  # 5min
+  secs_to_expire_change_password: 300
 
 oauth2:
   redirect-uris: http://localhost:3000
@@ -24,6 +26,3 @@ spring:
             scope:
               - email
               - profile
-
-
-# 3. todo: Add OAuth2 configuration with preferred provider, make sure OAuth2 is working

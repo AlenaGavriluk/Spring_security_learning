@@ -25,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 				// Set permissions on endpoints
 				.authorizeRequests()
+				.antMatchers("/actuator/**").hasRole(UserRole.ADMIN.toString())
 				// Our public endpoints
 				.antMatchers("/auth/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/hotels/*").permitAll()
@@ -69,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							auth.baseUri("/auth/oauth2/authorize");
 							auth.authorizationRequestRepository(authorizationRequestRepository());
 						})
-						// You also need to ensure the client.registration.redirectUri (at application.yml) matches the custom
+						// You also need to ensure the client.registration.redirectUri (at application.yml.dev.prod) matches the custom
 						// Authorization Response baseUri.
 						.redirectionEndpoint(redir -> redir.baseUri("/auth/oauth2/code/*"))
 						.successHandler(oAuth2SuccessHandler()));

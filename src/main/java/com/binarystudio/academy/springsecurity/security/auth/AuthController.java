@@ -1,5 +1,6 @@
 package com.binarystudio.academy.springsecurity.security.auth;
 
+import com.binarystudio.academy.springsecurity.domain.user.UserService;
 import com.binarystudio.academy.springsecurity.domain.user.model.User;
 import com.binarystudio.academy.springsecurity.security.auth.model.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("auth")
 public class AuthController {
 	private final AuthService authService;
+	private final UserService userService;
 
-	public AuthController(AuthService authService) {
+	public AuthController(AuthService authService, UserService userService) {
+		this.userService = userService;
 		this.authService = authService;
 	}
 
@@ -31,19 +34,20 @@ public class AuthController {
 
 	@PutMapping("safe/forgotten_password")
 	public void forgotPasswordRequest(@RequestParam String email) {
-		// 6. todo: implement token display for further password update
+		User user = userService.loadUserByUsername(email);
+		authService.sendPasswordChangeToken(user);
 	}
 
 	@PatchMapping("safe/forgotten_password")
 	public AuthResponse forgottenPasswordReplacement(@RequestBody ForgottenPasswordReplacementRequest forgottenPasswordReplacementRequest) {
-		// 6. todo: implement password replacement and returning tokens
-		return null;
+		return authService.replaceForgottenPassword(forgottenPasswordReplacementRequest);
 	}
 
 	@PatchMapping("change_password")
 	public AuthResponse changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
-		// 5. todo: implement password changing
-		return null;
+		User user = userService.getCurrentUser();
+		userService.changePassword(user, passwordChangeRequest.getNewPassword());
+		return authService.getNewTokenPair(user);
 	}
 
 	@GetMapping("me")

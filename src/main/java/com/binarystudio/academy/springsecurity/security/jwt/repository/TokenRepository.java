@@ -1,14 +1,12 @@
-package com.binarystudio.academy.springsecurity.security.jwt;
+package com.binarystudio.academy.springsecurity.security.jwt.repository;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public class RefreshTokenRepository {
+public abstract class TokenRepository {
   //Map<UUID tokenId, String userName>
-  private Map<UUID, String> tokens = new HashMap<>();
+  private final Map<UUID, String> tokens = new HashMap<>();
 
   public void add(UUID tokenId, String userName){
     tokens.put(tokenId, userName);
@@ -16,5 +14,9 @@ public class RefreshTokenRepository {
 
   public boolean contains(UUID tokenId, String userName){
     return tokens.containsKey(tokenId) && tokens.get(tokenId).equals(userName);
+  }
+
+  public void delete(UUID tokenId){
+    tokens.remove(tokenId);
   }
 }

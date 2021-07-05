@@ -4,10 +4,10 @@ import com.binarystudio.academy.springsecurity.domain.user.UserService;
 import com.binarystudio.academy.springsecurity.domain.user.model.User;
 import com.binarystudio.academy.springsecurity.security.auth.model.AuthResponse;
 import com.binarystudio.academy.springsecurity.security.auth.model.AuthorizationRequest;
+import com.binarystudio.academy.springsecurity.security.auth.model.ForgottenPasswordReplacementRequest;
 import com.binarystudio.academy.springsecurity.security.auth.model.RegistrationRequest;
 import com.binarystudio.academy.springsecurity.security.jwt.JwtException;
 import com.binarystudio.academy.springsecurity.security.jwt.JwtProvider;
-import javax.management.JMException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,9 +46,25 @@ public class AuthService {
 	}
 
 	public AuthResponse refreshToken(String refreshToken) throws JwtException {
-		String userName = jwtProvider.validateRefreshToken(refreshToken)
-				.orElseThrow(() ->new JwtException("Invalid token", "jwt-invalid"));
+		String userName = jwtProvider.validateAndDeleteRefreshToken(refreshToken)
+				.orElseThrow(() -> new JwtException("Invalid token", "jwt-invalid"));
 		User user = userService.loadUserByUsername(userName);
+		return getNewTokenPair(user);
+	}
+
+	public AuthResponse getNewTokenPair(User user){
 		return AuthResponse.of(jwtProvider.generateAccessToken(user), jwtProvider.generateRefreshToken(user));
+	}
+
+	public void sendPasswordChangeToken(User user) {
+		System.out.println(jwtProvider.generatePasswordChangeToken(user));
+	}
+
+	public AuthResponse replaceForgottenPassword(ForgottenPasswordReplacementRequest forgottenPasswordReplacementRequest) {
+		String userName = jwtProvider.validateAndDeletePasswordChangeToken(forgottenPasswordReplacementRequest.getToken())
+				.orElseThrow(() -> new JwtException("Invalid token", "jwt-invalid"));
+		User user = userService.loadUserByUsername(userName);
+		userService.changePassword(user, forgottenPasswordReplacementRequest.getNewPassword());
+		return getNewTokenPair(user);
 	}
 }

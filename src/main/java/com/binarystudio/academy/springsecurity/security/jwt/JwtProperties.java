@@ -13,4 +13,5 @@ public class JwtProperties {
 	private String secret;
 	private Long secs_to_expire_access;
 	private Long secs_to_expire_refresh;
+	private Long secs_to_expire_change_password;
 }

@@ -27,7 +27,7 @@ public class RedirectUriToCookiePersister implements AuthorizationRequestReposit
 			Cookie redirCookie = new Cookie(REDIRECT_URI_PARAM, redirectUri);
 			redirCookie.setPath("/");
 			redirCookie.setHttpOnly(true);
-			// we can extract cookie's max age to application.yml
+			// we can extract cookie's max age to application.yml.dev.prod
 			redirCookie.setMaxAge(180);
 			response.addCookie(redirCookie);
 		}

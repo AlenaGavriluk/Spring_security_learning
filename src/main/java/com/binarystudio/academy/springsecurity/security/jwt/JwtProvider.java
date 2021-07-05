@@ -1,7 +1,8 @@
 package com.binarystudio.academy.springsecurity.security.jwt;
 
 import com.binarystudio.academy.springsecurity.domain.user.model.User;
-import com.binarystudio.academy.springsecurity.security.auth.model.AuthResponse;
+import com.binarystudio.academy.springsecurity.security.jwt.repository.PasswordChangeRepository;
+import com.binarystudio.academy.springsecurity.security.jwt.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -24,6 +25,8 @@ public class JwtProvider {
 
 	@Autowired
 	RefreshTokenRepository refreshTokenRepository;
+	@Autowired
+	PasswordChangeRepository passwordChangeRepository;
 
 	@Autowired
 	public JwtProvider(JwtProperties jwtProperties) {
@@ -60,11 +63,38 @@ public class JwtProvider {
 	}
 
 	//return userName if token is valid, else return empty optional
-	public Optional<String> validateRefreshToken(String refreshToken){
+	public Optional<String> validateAndDeleteRefreshToken(String refreshToken){
 		Claims claims = parseToken(refreshToken);
 		UUID tokenId = UUID.fromString(claims.getId());
 		String userName = claims.getSubject();
 		if (refreshTokenRepository.contains(tokenId, userName)) {
+			refreshTokenRepository.delete(tokenId);
+			return Optional.of(userName);
+		} else
+			return Optional.empty();
+	}
+
+	public String generatePasswordChangeToken(User user) {
+		Date date = Date.from(LocalDateTime.now()
+				.plusSeconds(jwtProperties.getSecs_to_expire_change_password()).toInstant(ZoneOffset.UTC));
+		UUID tokenId = UUID.randomUUID();
+		String userName = user.getUsername();
+		passwordChangeRepository.add(tokenId, userName);
+		return Jwts.builder()
+				.setSubject(userName)
+				.setId(tokenId.toString())
+				.setExpiration(date)
+				.signWith(key())
+				.compact();
+	}
+
+	//return userName if token is valid, else return empty optional
+	public Optional<String> validateAndDeletePasswordChangeToken(String refreshToken){
+		Claims claims = parseToken(refreshToken);
+		UUID tokenId = UUID.fromString(claims.getId());
+		String userName = claims.getSubject();
+		if (passwordChangeRepository.contains(tokenId, userName)) {
+			passwordChangeRepository.delete(tokenId);
 			return Optional.of(userName);
 		} else
 			return Optional.empty();
@@ -99,4 +129,5 @@ public class JwtProvider {
 			throw new JwtException("Invalid token", "jwt-invalid");
 		}
 	}
+
 }

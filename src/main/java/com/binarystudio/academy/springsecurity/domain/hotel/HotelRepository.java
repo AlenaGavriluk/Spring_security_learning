@@ -1,6 +1,7 @@
 package com.binarystudio.academy.springsecurity.domain.hotel;
 
 import com.binarystudio.academy.springsecurity.domain.hotel.model.Hotel;
+import com.binarystudio.academy.springsecurity.domain.user.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -49,5 +50,10 @@ public class HotelRepository {
 
 	public boolean delete(UUID hotelId) {
 		return hotels.removeIf(hotel -> hotel.getId().equals(hotelId));
+	}
+
+	public boolean userIsHotelOwner(User user, UUID hotelId) throws NoSuchElementException{
+		return getById(hotelId).orElseThrow(()-> new NoSuchElementException("No hotel with these ID"))
+				.getOwnerId().equals(user.getId());
 	}
 }
