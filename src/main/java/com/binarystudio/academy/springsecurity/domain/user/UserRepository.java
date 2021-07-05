@@ -11,7 +11,11 @@ import java.util.*;
 public class UserRepository {
 	private final List<User> users = new ArrayList<>();
 
+	private final PasswordEncoder passwordEncoder;
+
 	public UserRepository(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+
 		var regularUser = new User();
 		regularUser.setUsername("regular");
 		regularUser.setEmail("regular@mail.com");
@@ -47,5 +51,15 @@ public class UserRepository {
 		createdUser.setUsername(email);
 		createdUser.setAuthorities(Set.of(UserRole.USER));
 		users.add(createdUser);
+	}
+
+	public User createNewUser(String email, String login, String password){
+		var createdUser = new User();
+		createdUser.setEmail(email);
+		createdUser.setUsername(login);
+		createdUser.setId(UUID.randomUUID());
+		createdUser.setPassword(passwordEncoder.encode(password));
+		createdUser.setAuthorities(Set.of(UserRole.USER));
+		return createdUser;
 	}
 }

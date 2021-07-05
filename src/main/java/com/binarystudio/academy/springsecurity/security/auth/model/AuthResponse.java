@@ -5,11 +5,12 @@ import lombok.Data;
 @Data
 public class AuthResponse {
 	private String accessToken;
-	// 2 todo: add refresh token
+	private String refreshToken;
 
-	public static AuthResponse of(String token) {
+	public static AuthResponse of(String accessToken, String refreshToken) {
 		AuthResponse response = new AuthResponse();
-		response.setAccessToken(token);
+		response.setAccessToken(accessToken);
+		response.setRefreshToken(refreshToken);
 		return response;
 	}
 }

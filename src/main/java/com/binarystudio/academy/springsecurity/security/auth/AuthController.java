@@ -21,14 +21,12 @@ public class AuthController {
 
 	@PostMapping("safe/register")
 	public AuthResponse register(@RequestBody RegistrationRequest registrationRequest) {
-		// 1. todo: implement registration
-		return null;
+		return authService.registerUser(registrationRequest);
 	}
 
 	@PostMapping("safe/refresh")
 	public AuthResponse refreshTokenPair(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-		// 2. todo: implement refresh token
-		return null;
+		return authService.refreshToken(refreshTokenRequest.getRefreshToken());
 	}
 
 	@PutMapping("safe/forgotten_password")

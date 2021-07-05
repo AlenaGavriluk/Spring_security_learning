@@ -23,7 +23,7 @@ public class SimpleOAuth2UserService extends DefaultOAuth2UserService {
 		if (foundUser.isPresent()) {
 			// update user, verify his email, etc since the email is returned from trusted source
 		} else {
-			// 1. todo: register the user when he wasn't found
+			userRepository.createUserByEmail(oAuth2User.getAttribute("email"));
 		}
 		return oAuth2User;
 	}

@@ -25,4 +25,8 @@ public class UserService implements UserDetailsService {
 	public List<User> getAll() {
 		return userRepository.findUsers();
 	}
+
+	public User createNewUser(String email, String login, String password){
+		return userRepository.createNewUser(email, login, password);
+	}
 }

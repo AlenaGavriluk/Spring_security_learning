@@ -1,10 +1,13 @@
 package com.binarystudio.academy.springsecurity.security.jwt;
 
 import com.binarystudio.academy.springsecurity.domain.user.model.User;
+import com.binarystudio.academy.springsecurity.security.auth.model.AuthResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,9 @@ public class JwtProvider {
 	private final JwtProperties jwtProperties;
 	private Key secretKey;
 	private JwtParser jwtParser;
+
+	@Autowired
+	RefreshTokenRepository refreshTokenRepository;
 
 	@Autowired
 	public JwtProvider(JwtProperties jwtProperties) {
@@ -39,9 +45,32 @@ public class JwtProvider {
 		return jwtParser;
 	}
 
-	// 2. todo: refresh token should be generated here
+	public String generateRefreshToken(User user) {
+		Date date = Date.from(LocalDateTime.now()
+				.plusSeconds(jwtProperties.getSecs_to_expire_refresh()).toInstant(ZoneOffset.UTC));
+		UUID tokenId = UUID.randomUUID();
+		String userName = user.getUsername();
+		refreshTokenRepository.add(tokenId, userName);
+		return Jwts.builder()
+				.setSubject(userName)
+				.setId(tokenId.toString())
+				.setExpiration(date)
+				.signWith(key())
+				.compact();
+	}
 
-	public String generateToken(User user) {
+	//return userName if token is valid, else return empty optional
+	public Optional<String> validateRefreshToken(String refreshToken){
+		Claims claims = parseToken(refreshToken);
+		UUID tokenId = UUID.fromString(claims.getId());
+		String userName = claims.getSubject();
+		if (refreshTokenRepository.contains(tokenId, userName)) {
+			return Optional.of(userName);
+		} else
+			return Optional.empty();
+	}
+
+	public String generateAccessToken(User user) {
 		Date date = Date.from(LocalDateTime.now().plusSeconds(jwtProperties.getSecs_to_expire_access()).toInstant(ZoneOffset.UTC));
 		return Jwts.builder()
 				.setSubject(user.getUsername())

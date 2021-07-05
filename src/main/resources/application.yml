@@ -6,9 +6,24 @@ jwt:
   secret: 9i3Bk8SJ3CfqIm+v9JJjHc5PGmqNmevaXDLYX4k0sW9hmhuvA6rTNWIM6uISlbVWcn28bMs+gY+P3LLzRytHMQ==
   # 30min
   secs_to_expire_access: 1800
-  # 2. todo: refresh token expiration time
+  # 30days
+  secs_to_expire_refresh: 2592000
 
 oauth2:
   redirect-uris: http://localhost:3000
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: {PROVIDER_NAME_CLIENT_ID}
+            client-secret: {PROVIDER_NAME_CLIENT_SECRET}
+            redirectUri: "{baseUrl}/auth/oauth2/code/google"
+            scope:
+              - email
+              - profile
+
 
 # 3. todo: Add OAuth2 configuration with preferred provider, make sure OAuth2 is working
